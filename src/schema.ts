@@ -13,10 +13,61 @@ import {
 } from "graphql";
 
 import { client as apiClient } from "./api-client";
+import { videoLoader } from "./dataloader";
 
 const ISO8601DateTime = new GraphQLScalarType({
   name: "ISO8601DateTime",
 });
+
+const ISO8601Duration = new GraphQLScalarType({
+  name: "ISO8601Duration",
+});
+
+const Video: GraphQLObjectType<youtube_v3.Schema$Video> = new GraphQLObjectType(
+  {
+    name: "Video",
+    fields: () => ({
+      id: {
+        type: new GraphQLNonNull(GraphQLID),
+        resolve(source) {
+          return source.id;
+        },
+      },
+      title: {
+        type: GraphQLString,
+        resolve(source) {
+          return source.snippet!.title;
+        },
+      },
+      description: {
+        type: new GraphQLNonNull(GraphQLString),
+        resolve(source) {
+          return source.snippet!.description;
+        },
+      },
+      publishedAt: {
+        type: new GraphQLNonNull(ISO8601DateTime),
+        resolve(source) {
+          return source.snippet!.publishedAt;
+        },
+      },
+      tags: {
+        type: new GraphQLNonNull(
+          new GraphQLList(new GraphQLNonNull(GraphQLString))
+        ),
+        resolve(source) {
+          return source.snippet!.tags;
+        },
+      },
+      duration: {
+        type: new GraphQLNonNull(ISO8601Duration),
+        resolve(source) {
+          return source.contentDetails!.duration;
+        },
+      },
+    }),
+  }
+);
 
 const PlaylistItem: GraphQLObjectType<youtube_v3.Schema$PlaylistItem> =
   new GraphQLObjectType({
@@ -65,6 +116,12 @@ const PlaylistItem: GraphQLObjectType<youtube_v3.Schema$PlaylistItem> =
         type: new GraphQLNonNull(GraphQLInt),
         resolve(source) {
           return source.snippet!.position;
+        },
+      },
+      video: {
+        type: new GraphQLNonNull(Video),
+        resolve(source) {
+          return videoLoader.load(source.contentDetails!.videoId!);
         },
       },
       startAt: {
