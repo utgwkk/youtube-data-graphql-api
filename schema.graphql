@@ -63,9 +63,9 @@ type PlaylistItem {
 
   # contentDetails
   video: Video!
-  startAt: Int!
-  endAt: Int!
-  note: String!
+  startAt: Int
+  endAt: Int
+  note: String
 
   # status
   privacyStatus: PrivacyStatusEnum!
