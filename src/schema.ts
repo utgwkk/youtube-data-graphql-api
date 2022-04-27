@@ -1,3 +1,4 @@
+import type { youtube_v3 } from "@googleapis/youtube";
 import {
   GraphQLFieldConfig,
   GraphQLID,
@@ -7,15 +8,14 @@ import {
   GraphQLSchema,
   GraphQLString,
 } from "graphql";
-import fetch from "node-fetch";
 
-import { Channel as ChannelSource } from "./source";
+import { client as apiClient } from "./api-client";
 
 const ISO8601DateTime = new GraphQLScalarType({
   name: "ISO8601DateTime",
 });
 
-const Channel = new GraphQLObjectType<ChannelSource>({
+const Channel = new GraphQLObjectType<youtube_v3.Schema$Channel>({
   name: "Channel",
   fields: {
     id: {
@@ -27,19 +27,19 @@ const Channel = new GraphQLObjectType<ChannelSource>({
     title: {
       type: new GraphQLNonNull(GraphQLString),
       resolve(source) {
-        return source.snippet.title;
+        return source.snippet!.title;
       },
     },
     description: {
       type: new GraphQLNonNull(GraphQLString),
       resolve(source) {
-        return source.snippet.description;
+        return source.snippet!.description;
       },
     },
     publishedAt: {
       type: new GraphQLNonNull(ISO8601DateTime),
       resolve(source) {
-        return source.snippet.publishedAt;
+        return source.snippet!.publishedAt;
       },
     },
     // TODO:
@@ -65,9 +65,10 @@ export const schema = new GraphQLSchema({
         },
         async resolve(source, args, context, info) {
           const { id } = args;
-          const url = buildRequestURL({ resource: "channels", id });
-          const resp = await fetch(url);
-          const data = (await resp.json()) as any;
+          const { data } = await apiClient.channels.list({
+            id: [id],
+            part: ["snippet"],
+          });
 
           if (!data.items) {
             return null;
@@ -79,13 +80,3 @@ export const schema = new GraphQLSchema({
     },
   }),
 });
-
-const buildRequestURL = ({
-  resource,
-  id,
-}: {
-  resource: string;
-  id: string;
-}) => {
-  return `https://www.googleapis.com/youtube/v3/${resource}?key=${process.env.API_KEY}&id=${id}&part=id,snippet&filter=*`;
-};
