@@ -1,11 +1,12 @@
 import {
-  GraphQLFieldConfig,
   GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+
 import { client as apiClient } from "../api-client";
+
 import { Channel } from "./channel";
 
 export const Query = new GraphQLObjectType({
@@ -17,14 +18,14 @@ export const Query = new GraphQLObjectType({
         return "Hello, world!";
       },
     },
-    channel: <GraphQLFieldConfig<unknown, unknown, { id: string }>>{
+    channel: {
       type: Channel,
       args: {
         id: {
           type: new GraphQLNonNull(GraphQLID),
         },
       },
-      async resolve(source, args, context, info) {
+      async resolve(source, args: { id: string }, context, info) {
         const { id } = args;
         const { data } = await apiClient.channels.list({
           id: [id],

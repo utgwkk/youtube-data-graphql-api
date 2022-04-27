@@ -6,10 +6,12 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+
 import { client as apiClient } from "../api-client";
+
+import { ISO8601DateTime } from "./custom-scalar";
 import { RelatedPlaylistKeyEnum } from "./enum/related-playlist-key-enum";
 import { Playlist } from "./playlist";
-import { ISO8601DateTime } from "./custom-scalar";
 
 export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
   new GraphQLObjectType({
@@ -39,16 +41,14 @@ export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
           return source.snippet!.publishedAt;
         },
       },
-      relatedPlaylist: <
-        GraphQLFieldConfig<youtube_v3.Schema$Channel, unknown, { key: string }>
-      >{
+      relatedPlaylist: {
         type: Playlist,
         args: {
           key: {
             type: new GraphQLNonNull(RelatedPlaylistKeyEnum),
           },
         },
-        async resolve(source, args) {
+        async resolve(source, args: { key: string }) {
           const { key } = args;
           let id: string | undefined;
           switch (key) {

@@ -6,6 +6,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+
 import { ISO8601DateTime, ISO8601Duration } from "./custom-scalar";
 
 export const Video: GraphQLObjectType<youtube_v3.Schema$Video> =
