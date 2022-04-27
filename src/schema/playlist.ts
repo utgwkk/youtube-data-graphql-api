@@ -1,6 +1,5 @@
 import { youtube_v3 } from "@googleapis/youtube";
 import {
-  GraphQLFieldConfig,
   GraphQLID,
   GraphQLInt,
   GraphQLList,
