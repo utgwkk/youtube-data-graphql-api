@@ -1,0 +1,8 @@
+{
+  "name": "youtube-data-graphql-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "ssh://git@github.com/utgwkk/youtube-data-graphql-api.git",
+  "author": "utgwkk <utagawakiki@gmail.com>",
+  "license": "MIT"
+}
