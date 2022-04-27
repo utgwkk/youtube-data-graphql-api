@@ -1,0 +1,7 @@
+{
+  "importOrder": [
+    "^[.]{2}/",
+    "^[./]"
+  ],
+  "importOrderSeparation": true
+}
