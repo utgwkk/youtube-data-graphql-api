@@ -13,7 +13,7 @@ type Channel {
   thumbnail(key: ThumbnailKeyEnum): Thumbnail
 
   # TODO: contentDetails
-  relatedPlaylists(key: RelatedPlaylistKeyEnum): Playlist
+  relatedPlaylist(key: RelatedPlaylistKeyEnum): Playlist
   # TODO: statistics
   # TODO: status
   # TODO: brandingSettings
