@@ -1,3 +1,156 @@
+scalar ISO8601DateTime
+
+scalar ISO8601Duration
+
+# https://developers.google.com/youtube/v3/docs/channels
+type Channel {
+  id: ID!
+
+  # snippet
+  title: String!
+  description: String!
+  publishedAt: ISO8601DateTime!
+  thumbnail(key: ThumbnailKeyEnum): Thumbnail
+
+  # TODO: contentDetails
+  relatedPlaylists(key: RelatedPlaylistKeyEnum): Playlist
+  # TODO: statistics
+  # TODO: status
+  # TODO: brandingSettings
+  # TODO: invideoPromotion
+}
+
+enum RelatedPlaylistKeyEnum {
+  LIKES
+  FAVORITES
+  UPLOADS
+  WATCH_HISTORY
+  WATCH_LATER
+}
+
+type Playlist {
+  id: ID!
+  items(first: Int, after: String): [PlaylistItem!]!
+
+  # snippet
+  publishedAt: ISO8601DateTime!
+  channel: Channel
+  title: String!
+  description: String!
+  thumbnail(key: ThumbnailKeyEnum): Thumbnail
+  tags: [String!]!
+
+  # status
+  privacyStatus: PrivacyStatusEnum!
+
+  # contentDetails
+  itemCount: Int!
+
+  # player
+  embedHtml: String!
+}
+
+type PlaylistItem {
+  id: ID!
+
+  # snippet
+  publishedAt: ISO8601DateTime!
+  channel: Channel
+  title: String!
+  description: String!
+  thumbnail(key: ThumbnailKeyEnum): Thumbnail
+  position: Int!
+
+  # contentDetails
+  video: Video!
+  startAt: Int!
+  endAt: Int!
+  note: String!
+
+  # status
+  privacyStatus: PrivacyStatusEnum!
+}
+
+type Video {
+  id: ID!
+
+  # snippet
+  publishedAt: ISO8601DateTime!
+  channel: Channel
+  title: String!
+  description: String!
+  thumbnail(key: ThumbnailKeyEnum): Thumbnail
+  tags: [String!]!
+
+  # contentDetails
+  duration: ISO8601Duration!
+  dimension: VideoDimensionEnum!
+  definition: VideoDefinitionEnum!
+  caption: Boolean!
+  licensedContent: Boolean!
+  regionRestriction: VideoRegionRestriction!
+  # TODO: mpaaRating
+  # TODO: tvpgRating
+  # TODO: bbfcRating
+  # TODO: chvrsRating
+  # TODO: eirinRating
+  # TODO: cbfcRating
+  # TODO: fmocRating
+  # TODO: icaaRating
+  # TODO: acbRating
+  # TODO: oflcRating
+  # TODO: fskRating
+  # TODO: kmrbRating
+  # TODO: djctqRating
+  # TODO: russiaRating
+  # TODO: rtcRating
+  # TODO: ytRating
+
+  # TODO: status
+  # TODO: statistics
+  # TODO: player
+  # TODO: topicDetails
+  # TODO: recordingDetails
+  # TODO: fileDetails
+  # TODO: processingDetails
+  # TODO: suggestions
+}
+
+enum VideoDimensionEnum {
+  TWO_DIMENSIONAL
+  THREE_DIMENSIONAL
+}
+
+enum VideoDefinitionEnum {
+  HD
+  SD
+}
+
+type VideoRegionRestriction {
+  allowed: [String!]!
+  blocked: [String!]!
+}
+
+enum PrivacyStatusEnum {
+  PRIVATE
+  PUBLIC
+  UNLISTED
+}
+
+enum ThumbnailKeyEnum {
+  DEFAULT
+  MEDIUM
+  HIGH
+}
+
+type Thumbnail {
+  url: String!
+  width: Int!
+  height: Int!
+}
+
 type Query {
   hello: String
+
+  channel(id: ID!): Channel
 }
