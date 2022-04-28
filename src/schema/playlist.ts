@@ -51,7 +51,7 @@ const fetchManyPlaylistItems = async (
     const { data } = await apiClient.playlistItems.list({
       playlistId,
       part: ["snippet", "contentDetails"],
-      maxResults: Math.max(batchSize, rest),
+      maxResults: Math.min(batchSize, rest),
       ...(after ? { pageToken: after } : {}),
     });
     if (!firstData) {
