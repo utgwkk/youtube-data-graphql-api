@@ -6,6 +6,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { connectionDefinitions } from "graphql-relay";
 
 import { client as apiClient } from "../api-client";
 import { videoLoader } from "../dataloader";
@@ -89,3 +90,7 @@ export const PlaylistItem: GraphQLObjectType<youtube_v3.Schema$PlaylistItem> =
       },
     }),
   });
+
+export const {connectionType: PlaylistItemConnection} = connectionDefinitions({
+  nodeType: PlaylistItem,
+})

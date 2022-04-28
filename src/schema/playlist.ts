@@ -1,18 +1,40 @@
 import { youtube_v3 } from "@googleapis/youtube";
 import {
   GraphQLID,
-  GraphQLInt,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import {
+  Connection,
+  ConnectionArguments,
+  forwardConnectionArgs,
+} from "graphql-relay";
 
 import { client as apiClient } from "../api-client";
 
 import { Channel } from "./channel";
 import { ISO8601DateTime } from "./custom-scalar";
-import { PlaylistItem } from "./playlist-item";
+import { PlaylistItemConnection } from "./playlist-item";
+
+const connectionFromAPIResponse = (
+  data: youtube_v3.Schema$PlaylistItemListResponse
+): Connection<youtube_v3.Schema$PlaylistItem> => {
+  const edges = (data.items ?? []).map((item) => ({
+    node: item,
+    cursor: "",
+  }));
+
+  return {
+    edges,
+    pageInfo: {
+      startCursor: data.prevPageToken ?? null,
+      endCursor: data.nextPageToken ?? null,
+      hasNextPage: !!data.nextPageToken,
+      hasPreviousPage: !!data.prevPageToken,
+    },
+  };
+};
 
 export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
   new GraphQLObjectType({
@@ -25,29 +47,17 @@ export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
         },
       },
       items: {
-        type: new GraphQLNonNull(
-          new GraphQLList(new GraphQLNonNull(PlaylistItem))
-        ),
-        args: {
-          first: {
-            type: GraphQLInt,
-          },
-          after: {
-            type: GraphQLString,
-          },
-        },
-        async resolve(
-          source,
-          { first = 5, after }: { first?: number; after?: string }
-        ) {
+        type: PlaylistItemConnection,
+        args: forwardConnectionArgs,
+        async resolve(source, { first = 5, after }: ConnectionArguments) {
           const { data } = await apiClient.playlistItems.list({
             playlistId: source.id!,
             part: ["snippet", "contentDetails"],
-            maxResults: first,
-            pageToken: after,
+            maxResults: first ?? 5,
+            ...(after ? { pageToken: after } : {}),
           });
 
-          return data.items;
+          return connectionFromAPIResponse(data);
         },
       },
       title: {
