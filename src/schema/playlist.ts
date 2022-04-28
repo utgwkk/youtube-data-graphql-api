@@ -100,7 +100,6 @@ export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
           first ??= 5;
 
           const data = await fetchManyPlaylistItems(source.id!, first, after);
-          console.log(JSON.stringify(data, null, 2));
 
           return connectionFromAPIResponse(data);
         },

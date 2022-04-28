@@ -7,7 +7,6 @@ export const videoLoader = new DataLoader<
   string,
   youtube_v3.Schema$Video | null
 >(async (keys) => {
-  console.debug("batch load videos");
   const chunkedKeys = chunk(keys, 50);
   const responses = await Promise.all(
     chunkedKeys.map((keys) =>
