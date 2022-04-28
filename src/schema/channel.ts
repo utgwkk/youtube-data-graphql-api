@@ -9,7 +9,7 @@ import {
 import { client as apiClient } from "../api-client";
 
 import { ISO8601DateTime } from "./custom-scalar";
-import { RelatedPlaylistKeyEnum } from "./enum/related-playlist-key-enum";
+import { RelatedPlaylistKeyEnum, RelatedPlaylistKeyEnumType } from "./enum/related-playlist-key-enum";
 import { Playlist } from "./playlist";
 
 export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
@@ -47,7 +47,7 @@ export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
             type: new GraphQLNonNull(RelatedPlaylistKeyEnum),
           },
         },
-        async resolve(source, args: { key: string }) {
+        async resolve(source, args: { key: RelatedPlaylistKeyEnumType }) {
           const { key } = args;
           let id: string | undefined;
           switch (key) {

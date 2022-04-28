@@ -20,3 +20,10 @@ export const RelatedPlaylistKeyEnum = new GraphQLEnumType({
     },
   },
 });
+
+export type RelatedPlaylistKeyEnumType =
+  | "LIKES"
+  | "UPLOADS"
+  | "FAVORITES"
+  | "WATCH_HISTORY"
+  | "WATCH_LATER";
