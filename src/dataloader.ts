@@ -8,15 +8,37 @@ export const videoLoader = new DataLoader<
   youtube_v3.Schema$Video | null
 >(async (keys) => {
   console.debug("batch load videos");
-  const { data } = await apiClient.videos.list({
-    id: keys.slice(),
-    part: ["snippet", "contentDetails"],
-  });
+  const chunkedKeys = chunk(keys, 50);
+  const responses = await Promise.all(
+    chunkedKeys.map((keys) =>
+      apiClient.videos.list({
+        id: keys.slice(),
+        part: ["snippet", "contentDetails"],
+      })
+    )
+  );
+  const items = responses.flatMap((resp) => resp.data.items ?? []);
 
-  if (!data.items) {
-    return [];
-  }
-
-  const itemByKey = new Map(data.items.map((item) => [item.id!, item]));
+  const itemByKey = new Map(items.map((item) => [item.id!, item]));
   return keys.map((key) => itemByKey.get(key) ?? null);
 });
+
+const chunk = <T>(xs: readonly T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+
+  xs.forEach((x, i) => {
+    if (i === 0) {
+      chunks.push([x]);
+      return;
+    }
+
+    const lastChunk = chunks[chunks.length - 1];
+    if (lastChunk.length >= size) {
+      chunks.push([x]);
+    } else {
+      lastChunk.push(x);
+    }
+  });
+
+  return chunks;
+};
