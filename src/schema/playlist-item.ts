@@ -13,6 +13,11 @@ import { videoLoader } from "../dataloader";
 
 import { Channel } from "./channel";
 import { ISO8601DateTime } from "./custom-scalar";
+import {
+  ThumbnailKeyEnum,
+  ThumbnailKeyEnumType,
+} from "./enum/thumbnail-key-enum";
+import { Thumbnail } from "./thumbnail";
 import { Video } from "./video";
 
 export const PlaylistItem: GraphQLObjectType<youtube_v3.Schema$PlaylistItem> =
@@ -88,9 +93,29 @@ export const PlaylistItem: GraphQLObjectType<youtube_v3.Schema$PlaylistItem> =
           return source.contentDetails!.note;
         },
       },
+      thumbnail: {
+        type: Thumbnail,
+        args: {
+          key: { type: ThumbnailKeyEnum },
+        },
+        resolve(source, { key }: { key?: ThumbnailKeyEnumType }) {
+          switch (key) {
+            case "DEFAULT":
+              return source.snippet?.thumbnails?.default;
+            case "MEDIUM":
+              return source.snippet?.thumbnails?.medium;
+            case "HIGH":
+              return source.snippet?.thumbnails?.high;
+            default:
+              return source.snippet?.thumbnails?.default;
+          }
+        },
+      },
     }),
   });
 
-export const {connectionType: PlaylistItemConnection} = connectionDefinitions({
-  nodeType: PlaylistItem,
-})
+export const { connectionType: PlaylistItemConnection } = connectionDefinitions(
+  {
+    nodeType: PlaylistItem,
+  }
+);

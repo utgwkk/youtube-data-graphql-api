@@ -15,7 +15,12 @@ import { client as apiClient } from "../api-client";
 
 import { Channel } from "./channel";
 import { ISO8601DateTime } from "./custom-scalar";
+import {
+  ThumbnailKeyEnum,
+  ThumbnailKeyEnumType,
+} from "./enum/thumbnail-key-enum";
 import { PlaylistItemConnection } from "./playlist-item";
+import { Thumbnail } from "./thumbnail";
 
 const connectionFromAPIResponse = (
   data: youtube_v3.Schema$PlaylistItemListResponse
@@ -135,6 +140,24 @@ export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
           }
 
           return data.items[0];
+        },
+      },
+      thumbnail: {
+        type: Thumbnail,
+        args: {
+          key: { type: ThumbnailKeyEnum },
+        },
+        resolve(source, { key }: { key?: ThumbnailKeyEnumType }) {
+          switch (key) {
+            case "DEFAULT":
+              return source.snippet?.thumbnails?.default;
+            case "MEDIUM":
+              return source.snippet?.thumbnails?.medium;
+            case "HIGH":
+              return source.snippet?.thumbnails?.high;
+            default:
+              return source.snippet?.thumbnails?.default;
+          }
         },
       },
     }),

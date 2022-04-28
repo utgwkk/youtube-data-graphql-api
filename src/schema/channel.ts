@@ -9,8 +9,16 @@ import {
 import { client as apiClient } from "../api-client";
 
 import { ISO8601DateTime } from "./custom-scalar";
-import { RelatedPlaylistKeyEnum, RelatedPlaylistKeyEnumType } from "./enum/related-playlist-key-enum";
+import {
+  RelatedPlaylistKeyEnum,
+  RelatedPlaylistKeyEnumType,
+} from "./enum/related-playlist-key-enum";
+import {
+  ThumbnailKeyEnum,
+  ThumbnailKeyEnumType,
+} from "./enum/thumbnail-key-enum";
 import { Playlist } from "./playlist";
+import { Thumbnail } from "./thumbnail";
 
 export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
   new GraphQLObjectType({
@@ -84,6 +92,24 @@ export const Channel: GraphQLObjectType<youtube_v3.Schema$Channel> =
           }
 
           return data.items[0];
+        },
+      },
+      thumbnail: {
+        type: Thumbnail,
+        args: {
+          key: { type: ThumbnailKeyEnum },
+        },
+        resolve(source, { key }: { key?: ThumbnailKeyEnumType }) {
+          switch (key) {
+            case "DEFAULT":
+              return source.snippet?.thumbnails?.default;
+            case "MEDIUM":
+              return source.snippet?.thumbnails?.medium;
+            case "HIGH":
+              return source.snippet?.thumbnails?.high;
+            default:
+              return source.snippet?.thumbnails?.default;
+          }
         },
       },
       // TODO:
