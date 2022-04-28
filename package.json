@@ -5,6 +5,9 @@
   "repository": "ssh://git@github.com/utgwkk/youtube-data-graphql-api.git",
   "author": "utgwkk <utagawakiki@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/main.ts"
+  },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/express": "^4.17.13",
