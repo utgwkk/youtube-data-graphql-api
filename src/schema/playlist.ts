@@ -36,6 +36,53 @@ const connectionFromAPIResponse = (
   };
 };
 
+const fetchManyPlaylistItems = async (
+  playlistId: string,
+  first: number,
+  after?: string | null
+): Promise<youtube_v3.Schema$PlaylistItemListResponse> => {
+  const batchSize = 50;
+  let rest = first;
+  const items: youtube_v3.Schema$PlaylistItem[] = [];
+  let firstData: youtube_v3.Schema$PlaylistItemListResponse | null = null;
+  let lastData: youtube_v3.Schema$PlaylistItemListResponse = {};
+
+  while (rest > 0) {
+    const { data } = await apiClient.playlistItems.list({
+      playlistId,
+      part: ["snippet", "contentDetails"],
+      maxResults: Math.max(batchSize, rest),
+      ...(after ? { pageToken: after } : {}),
+    });
+    if (!firstData) {
+      firstData = data;
+    }
+    lastData = data;
+    if (!data.items) {
+      break;
+    }
+    rest -= batchSize;
+    after = data.nextPageToken;
+
+    items.push(...data.items);
+
+    if (!after) {
+      break;
+    }
+  }
+
+  return {
+    items,
+    kind: lastData.kind,
+    nextPageToken: lastData.nextPageToken,
+    prevPageToken: firstData?.prevPageToken,
+    pageInfo: {
+      resultsPerPage: items.length,
+      totalResults: lastData.pageInfo?.totalResults,
+    },
+  };
+};
+
 export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
   new GraphQLObjectType({
     name: "Playlist",
@@ -50,12 +97,10 @@ export const Playlist: GraphQLObjectType<youtube_v3.Schema$Playlist> =
         type: PlaylistItemConnection,
         args: forwardConnectionArgs,
         async resolve(source, { first = 5, after }: ConnectionArguments) {
-          const { data } = await apiClient.playlistItems.list({
-            playlistId: source.id!,
-            part: ["snippet", "contentDetails"],
-            maxResults: first ?? 5,
-            ...(after ? { pageToken: after } : {}),
-          });
+          first ??= 5;
+
+          const data = await fetchManyPlaylistItems(source.id!, first, after);
+          console.log(JSON.stringify(data, null, 2));
 
           return connectionFromAPIResponse(data);
         },
